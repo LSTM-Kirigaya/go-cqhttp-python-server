@@ -59,3 +59,24 @@ python3 main.py
 ```
 
 玩得愉快！有问题欢迎提issue！
+
+
+--- 
+
+# tip指令系统
+我还加了一个简单的指令系统：
+
+![](https://picx.zhimg.com/80/v2-c28ff1458fd78c1fce56672c367b93ae_1440w.png)
+通过tip.command.XXX就能调用，想要拓展自己的指令只需要在我的项目的`qq_server/tip_command.py`编写函数即可，函数需要满足：
+1. 完整的输入参数的类型标注
+2. 返回值为字符串或者返回类型自带__str__方法
+3. 不能以下划线开头
+
+比如你要实现一个乘法函数，只需要在`qq_server/tip_command.py`中编写：
+
+```python
+def multiple(a: int, b: int) -> str:
+    return a * b
+```
+
+然后重新运行，在QQ聊天框中输入tip.command.multiple 1 2，就会返回2
