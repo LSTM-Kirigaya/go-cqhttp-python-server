@@ -2,6 +2,8 @@
 
 ![](https://img.shields.io/badge/platform-go--cqhttp-orange) ![](https://img.shields.io/badge/python-%3E%3D3.5-green) ![](https://img.shields.io/badge/server-flask-blue)
 
+知乎文章：https://zhuanlan.zhihu.com/p/605791705
+
 # 介绍
 
 用于将openai服务或者其他自定义指令接入QQ的python server
@@ -48,7 +50,7 @@ response_group_ids:
 
 4. 安装所需要的库
 ```python
-pip3 install gevent flask openai
+pip3 install gevent flask openai requests
 ```
 5. 开启虚拟终端后运行
 ```bash
