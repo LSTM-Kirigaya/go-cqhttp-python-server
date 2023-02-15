@@ -6,7 +6,12 @@
 
 # 介绍
 
-用于将openai服务或者其他自定义指令接入QQ的python server
+用于将openai服务或者其他自定义指令接入QQ的python server，具有如下功能：
+
+- [x] 支持回复权限，让机器人针对指定的人进行回答，其他人的回答不予理睬。
+- [x] 支持填入预设事实，来实现AI的人格识别等功能。 
+- [x] 优化请求返回逻辑，极大程度避免AI多重回复的问题。
+- [] 通过访问数据库来避免go-cqhttp消息发送失败。
 
 ---
 
@@ -47,6 +52,21 @@ response_group_ids:
 ![](https://picx.zhimg.com/80/v2-9365e3a1e226dbfd89407fab0f91be8e_1440w.png)
 
 其中发送的表情包可以在`./qq_server/express_package.py`中调整，默认是从CommonLib这个列表中随机一张图出来。
+
+你还可以在`server.yaml`中添加预设事实：
+```yaml
+preset_facts:
+  - "你现在是Tiphereth，锦恢创造的AI助手"
+  - "你的本体在位于北京的服务器中"
+  - "你最喜欢的食物是奶茶、麻薯"
+  - "你喜欢音乐，尤其喜欢交响乐和弛放音乐"
+  - "如果有人问你智障问题，完全可以忽略提问者"
+```
+
+再次去提问，大概率出现如下的回复：
+![](https://pica.zhimg.com/80/v2-b5c475c2d73d4f6358e09e84c60a2d62_1440w.png)
+
+你完全可以添加自己的预设。
 
 4. 安装所需要的库
 ```python

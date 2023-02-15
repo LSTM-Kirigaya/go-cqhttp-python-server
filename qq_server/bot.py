@@ -12,6 +12,7 @@ import random
 class ServerBot:
     response_user_ids = {}
     response_group_ids = {}
+    preset_facts_string = ''
     user_id = -1
     password = -1
 
@@ -21,6 +22,8 @@ class ServerBot:
         
         self.response_user_ids = set(obj['response_user_ids'])
         self.response_group_ids = set(obj['response_group_ids'])
+        preset_facts: List[str] = obj['preset_facts']
+        self.preset_facts_string = '\n'.join(preset_facts)
     
     def init_account(self, user_id: int, password: int):
         self.user_id = user_id
@@ -68,6 +71,7 @@ class ServerBot:
 
         else:
             # 默认为openai服务
+            message = self.preset_facts_string + '\n' + message
             openai_text_completion, status = get_answer(message)
             res = openai_text_completion
             color_report('openai 给出的答复:' + openai_text_completion, ReportType.Debug)
@@ -108,6 +112,7 @@ class ServerBot:
 
             else:
                 # 默认为openai服务
+                message = self.preset_facts_string + '\n' + message
                 openai_text_completion, status = get_answer(message)
                 res = at_string + ' ' + openai_text_completion
                 color_report('openai 给出的答复:' + openai_text_completion, ReportType.Debug)
