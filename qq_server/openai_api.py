@@ -32,6 +32,7 @@ def make_openai_completion_request(question: str, model: str = 'text-davinci-003
         answer: str = first_item['text']
         return answer.strip(), True
     except Exception as e:
+        color_report(e,ReportType.Error)
         return 'openai 工口发生 :(', False
 
 # 预处理：去除不知道为什么出现在开头的停用词
@@ -82,6 +83,6 @@ def get_openai_completion(question: str, openai_config: dict, max_repeat_times: 
             return ret, status
         attemp_time += 1
         color_report('openai服务请求出错{}次，正在进行第{}/{}次尝试'.format(
-            attemp_time, attemp_time + 1, max_repeat_times))
+            attemp_time, attemp_time, max_repeat_times))
     warns = '在三次尝试后，openai服务器仍然响应超时，这有极有可能是openai服务器处于繁忙状态'
     return warns, status
