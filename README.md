@@ -73,7 +73,12 @@ preset_facts:
 ```python
 pip3 install gevent flask openai requests
 ```
-5. 开启虚拟终端后运行
+5. 测试openai-api：
+```bash
+# 可能要等个2-10秒
+python3 test.py
+```
+6. 开启虚拟终端后运行
 ```bash
 screen -S qqbot-server
 python3 main.py

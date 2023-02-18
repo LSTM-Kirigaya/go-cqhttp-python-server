@@ -32,6 +32,8 @@ def make_openai_completion_request(question: str, model: str = 'text-davinci-003
         answer: str = first_item['text']
         return answer.strip(), True
     except Exception as e:
+        color_report('请求openai时发生错误：' + e, ReportType.Error)
+        color_report('请检查输入字符长度或者服务器的SSL', ReportType.Error)
         return 'openai 工口发生 :(', False
 
 # 预处理：去除不知道为什么出现在开头的停用词
