@@ -61,3 +61,21 @@ class CqImage(Cq, abc.ABC):
 
 class CqFace(Cq, abc.ABC):
     id: int
+
+
+class TalkItem:
+    Q: str
+    A: str
+    def __init__(self, q: str, a: str) -> None:
+        self.Q = q
+        self.A = a
+
+
+class OpenaiConfig:
+    max_repeat_times: int
+    model: str
+    temperature: float
+    max_tokens: int        
+    top_p: float
+    frequency_penalty: float
+    presence_penalty: float

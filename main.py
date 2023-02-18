@@ -2,24 +2,12 @@ from flask import Flask, request
 from qq_server import QQMessageBase, PrivateMessage, GroupMessage, MessageType
 from qq_server import dict_to_obj, color_report, ReportType, sweeper
 from qq_server import server_bot
+from qq_server import Defaults
 
 import yaml
 from typing import Tuple
 
 app = Flask(__name__)
-
-
-def get_host_port() -> Tuple[str, int]:
-    with open('./config.yml', 'r', encoding='utf-8') as f:
-        obj = yaml.load(f.read(), Loader = yaml.FullLoader)
-    url = obj['servers'][0]['http']['post'][0]['url']
-    account_info = obj['account']
-    account = account_info['uin']
-    password = account_info['password']
-    server_bot.init_account(account, password)
-    host, port = url.replace('http://', '').split(':')
-    return str(host), int(port)
-
 
 @app.route('/', methods=["POST"])
 def post_data():
@@ -49,10 +37,16 @@ def post_data():
 if __name__ == '__main__':
     from gevent import pywsgi
 
-    server_bot.read_config_yaml('./server.yaml')
-    host, port = get_host_port()
+    go_cqhttp_config = Defaults.go_cqhttp_config
+    python_server_config = Defaults.python_server_config
+
+    server_bot.launch(
+        go_cqhttp_config_path=go_cqhttp_config,
+        python_config_path=python_server_config
+    )
+
     server = pywsgi.WSGIServer(
-        listener=(host, port),
+        listener=(server_bot.host, server_bot.port),
         application=app,
         log=None
     )

@@ -1,0 +1,43 @@
+response_user_ids:
+  - 1193466151
+  - 1807756735
+  - 2640211756
+  - 1553770945
+  - 764468339
+  - 1029537929
+  - 1139274856
+  - 1579729633
+  - 2056862383
+
+response_group_ids:
+  - 331545811
+  - 676899208
+  - 932987873
+
+greet_user_ids:
+  - 1193466151
+
+greet_group_ids:
+  - 331545811
+
+talk_pool_config:
+  max_length: 10
+  memory_path: "./qq_server_data/memory.yml"
+
+
+openai_config:
+  max_repeat_times: 3       # 每次重复请求次数，如果一次询问连续 max_repeat_times 都失败了，那么返回服务器繁忙
+  model: "text-davinci-003" # 选择的模型
+  temperature: 0.8          # 该值越大，返回的话语随机性越强
+  max_tokens: 1024          # 最多返回的 token 数量
+  top_p: 1
+  frequency_penalty: 0
+  presence_penalty: 0
+
+preset_facts:
+  - "你现在是Tiphereth，锦恢创造的AI助手。"
+  - "你的本体在位于北京的服务器中。"
+  - "你最喜欢的食物是奶茶、麻薯。"
+  - "你喜欢音乐，尤其喜欢交响乐和弛放音乐。"
+  - "如果有人问你智障问题，完全可以忽略提问者。"
+  - "Q:我是小明，晚安了。\nA:晚安啦小明，祝你有一个美好的梦境，愿我能在你的梦境伴你左右。"

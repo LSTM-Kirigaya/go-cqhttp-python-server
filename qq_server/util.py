@@ -1,10 +1,13 @@
 from typing import Dict, Tuple, List
-from qq_server.type import CqType, CqAt, CqFace, QQMessageBase
-from colorama import Fore, Style
 from enum import Enum
 from time import time
-
 import re
+
+from colorama import Fore, Style
+import psutil
+import yaml
+
+from qq_server.type import CqType, CqAt, CqFace, QQMessageBase
 
 class ReportType(Enum):
     Warn = 'warn'
@@ -71,7 +74,10 @@ def parse_cq_code(cq_code: str) -> Tuple[object, str]:
     cq_payload = dict_to_obj(cq_payload_dict)
     if cq_type == CqType.At:
         cq_at: CqAt = cq_payload
-        cq_at.qq = int(cq_at.qq)
+        try:
+            cq_at.qq = int(cq_at.qq)
+        except:
+            cq_at.qq = -1
     elif cq_type == CqType.Image:
         pass
     elif cq_type == CqType.Face:
@@ -79,6 +85,36 @@ def parse_cq_code(cq_code: str) -> Tuple[object, str]:
         cq_face.id = int(cq_face.id)
     
     return cq_payload, cq_type
+
+
+# 发送 私聊消息
+def get_send_private_request(go_host: str, go_port: int, user_id: int, message: str) -> str:
+    get_request = "http://{}:{}/send_private_msg?user_id={}&message={}".format(
+        go_host, go_port, user_id, message)
+    return get_request
+
+# 发送 群聊消息
+def get_send_group_request(go_host: str, go_port: int, group_id: int, message: str) -> str:
+    get_request = "http://{}:{}/send_group_msg?group_id={}&message={}".format(
+            go_host, go_port, group_id, message)
+    return get_request
+
+
+# 获取当前服务器资源占用情况
+def get_server_condition():
+    cpu_usage = psutil.cpu_percent(percpu=True)
+    memory_usage = psutil.virtual_memory().percent
+    return cpu_usage, memory_usage
+
+def read_yaml(path: str) -> dict:
+    with open(path, 'r', encoding='utf-8') as f:
+        obj = yaml.load(f.read(), Loader=yaml.FullLoader)
+    return obj
+
+def write_yaml(path: str, obj: dict):
+    with open(path, 'w', encoding='utf-8') as fp:
+        yaml.dump(obj, fp, encoding='utf-8', allow_unicode=True)
+
 
 
 class MessageSweeper:

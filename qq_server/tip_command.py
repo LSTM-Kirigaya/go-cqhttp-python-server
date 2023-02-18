@@ -21,7 +21,7 @@ def url_image(url: str) -> str:
     return '[CQ:image,file={}]'.format(url)
 
 def expression() -> str:
-    return url_image(express_package.Random)
+    return url_image(express_package.random_url)
 
 
 def help() -> str:

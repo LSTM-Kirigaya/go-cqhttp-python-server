@@ -128,3 +128,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 *.bat
+qq_server_data/
