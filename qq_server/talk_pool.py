@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Union
 import os
 from time import time
 
@@ -47,7 +47,7 @@ class TalkPool:
         self.cur_index = (cur_index + 1) % self.max_length
     
 
-    def get_QA_context(self):
+    def get_QA_context(self, return_str:bool = True) -> Union[str, List[dict]]:
         valid_talk_items: List[dict] = []
         
         cur_index = self.cur_index
@@ -61,6 +61,8 @@ class TalkPool:
             # 说明pool是从0开始计数的
             valid_talk_items.extend(self.pool[:cur_index])
 
+        if not return_str:
+            return valid_talk_items
         context = ''
         for item in valid_talk_items:
             q = item.get('q', None)

@@ -1,6 +1,7 @@
 import abc
 from typing import Any
 
+
 class MessageType:
     Private = 'private'
     Group = 'group'
@@ -79,3 +80,9 @@ class OpenaiConfig:
     top_p: float
     frequency_penalty: float
     presence_penalty: float
+
+
+class ChatgptInputType:
+    System = 'system'
+    User = 'user'
+    Assistant = 'assistant'

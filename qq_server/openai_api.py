@@ -1,5 +1,5 @@
 import os
-from typing import Tuple
+from typing import Tuple, Union, List
 
 import openai
 
@@ -8,36 +8,51 @@ from qq_server.util import color_report, ReportType
 from qq_server.express_package import express_package
 
 
+
 if 'OPENAI_API_KEY' not in os.environ:
     print('请将 openai token 写入环境变量 OPENAI_API_KEY 中！')
     exit(-1)
 
 openai.api_key = os.environ['OPENAI_API_KEY']
 
-def make_openai_completion_request(question: str, model: str = 'text-davinci-003', temperature: float = 0.7,
+def make_openai_completion_request(question: Union[str, List[dict]], model: str = 'text-davinci-003', temperature: float = 0.7,
                                    max_tokens: int = 1024, top_p: float = 1, frequency_penalty: float = 0, 
                                    presence_penalty: float = 0) -> Tuple[str, bool]:
     try:
-        response = openai.Completion.create(
-            model=model,
-            prompt=question,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            top_p=top_p,
-            frequency_penalty=frequency_penalty,
-            presence_penalty=presence_penalty
-        )
-        choices = response['choices']
-        first_item = choices[0]
-        answer: str = first_item['text']
-        return answer.strip(), True
+        if model == Defaults.chatgpt:
+            assert isinstance(question, list)
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=question
+            )
+
+            answer: str = response['choices'][0]['message']['content']
+            return answer.strip(), True
+
+        elif model.startswith(Defaults.davinci_prefix):
+            response = openai.Completion.create(
+                model=model,
+                prompt=question,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                top_p=top_p,
+                frequency_penalty=frequency_penalty,
+                presence_penalty=presence_penalty
+            )
+            choices = response['choices']
+            first_item = choices[0]
+            answer: str = first_item['text']
+            return answer.strip(), True
     except Exception as e:
-        color_report('请求openai时发生错误：' + e, ReportType.Error)
+        color_report('请求openai时发生错误：', ReportType.Error)
+        color_report(e, ReportType.Error)
         color_report('请检查输入字符长度或者服务器的SSL', ReportType.Error)
         return 'openai 工口发生 :(', False
 
 # 预处理：去除不知道为什么出现在开头的停用词
 def pre_wash_openai_completion(input: str) -> str:
+    if not isinstance(input, str):
+        return input
     # 给结尾增加停用词
     end_ch = input[-1]
     if end_ch not in Defaults.stop_words:
@@ -73,7 +88,7 @@ def suf_wash_openai_completion(out: str) -> str:
         return out
 
 # 返回结果和状态
-def get_openai_completion(question: str, openai_config: dict, max_repeat_times: int = 3) -> Tuple[str, bool]:
+def get_openai_completion(question: Union[str, List[dict]], openai_config: dict, max_repeat_times: int = 3) -> Tuple[str, bool]:
     question = pre_wash_openai_completion(question)
     attemp_time = 0
 

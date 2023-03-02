@@ -9,3 +9,5 @@ class Defaults:
     stop_words = set([',', '.', '，', '。', '?', '!', '？', '！', ':', '：'])
     openai_max_repeat_times = 3
     context_max_length = 300
+    chatgpt = 'gpt-3.5-turbo'
+    davinci_prefix = 'text-davinci'

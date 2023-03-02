@@ -71,7 +71,7 @@ preset_facts:
 
 4. 安装所需要的库
 ```python
-pip3 install gevent flask openai requests
+pip3 install gevent flask openai requests colorama pyyaml psutil
 ```
 5. 测试openai-api：
 ```bash

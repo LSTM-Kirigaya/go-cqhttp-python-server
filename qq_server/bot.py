@@ -3,9 +3,9 @@ from typing import List, Tuple, Union, Set
 import atexit
 from time import time
 
-from qq_server.type import PrivateMessage, GroupMessage, CqType, CqAt
+from qq_server.type import PrivateMessage, GroupMessage, CqType, CqAt, ChatgptInputType
 from qq_server.util import take_off_cq_code, parse_cq_code, color_report, ReportType, read_yaml
-from qq_server.util import get_send_group_request, get_send_private_request
+from qq_server.util import get_send_group_request, get_send_private_request, make_chatgpt_input_item
 from qq_server.openai_api import get_openai_completion
 from qq_server.express_package import express_package
 from qq_server.tip_command import commmand_mananger
@@ -56,12 +56,26 @@ class ServerBot:
     def load_config(self, path: str):
         obj = read_yaml(path)
         # 注册需要回复的用户
-        self.response_user_ids = set(obj.get('response_user_ids', []))
-        self.response_group_ids = set(obj.get('response_group_ids', []))
+        try:
+            self.response_user_ids = set(obj.get('response_user_ids', []))
+        except:
+            self.response_user_ids = set()
+        
+        try:
+            self.response_group_ids = set(obj.get('response_group_ids', []))
+        except:
+            self.response_group_ids = set()
 
         # 注册特殊事件（上线，下线）打招呼的用户
-        self.greet_user_ids = set(obj.get('greet_user_ids', []))
-        self.greet_group_ids = set(obj.get('greet_group_ids', []))
+        try:
+            self.greet_user_ids = set(obj.get('greet_user_ids', []))
+        except:
+            self.greet_user_ids = set()
+        
+        try:
+            self.greet_group_ids = set(obj.get('greet_group_ids', []))
+        except:
+            self.greet_group_ids = set()
 
         preset_facts: List[str] = obj.get('preset_facts', '')
         self.preset_facts_string = ''.join(preset_facts)
@@ -235,6 +249,50 @@ class ServerBot:
                     self.send_group_message(group_id, cq_image)
 
 
+    def make_question(self, message: str, data_package: Union[PrivateMessage, GroupMessage]) -> Union[str, List[dict]]:
+        model: str = self.openai_config.get('model', Defaults.chatgpt)
+        
+        if model == Defaults.chatgpt:
+            # 预设
+            preset_fact_item = make_chatgpt_input_item(ChatgptInputType.System, self.preset_facts_string)
+
+            # 上下文
+            talk_items = self.talk_pool.get_QA_context(return_str=False)
+
+
+            # 加上提问者身份
+            questioner_character_string = self.make_questioner_character(data_package)
+            questioner_messsage = '{}，{}'.format(questioner_character_string, message)
+            question_item = make_chatgpt_input_item(ChatgptInputType.User, questioner_messsage)
+
+            openai_input: List[dict] = [preset_fact_item]
+            for item in talk_items:
+                q = item.get('q', None)
+                a = item.get('a', None)
+                if q and a:
+                    user_replay = make_chatgpt_input_item(ChatgptInputType.User, q)
+                    assistant_reply = make_chatgpt_input_item(ChatgptInputType.Assistant, a)
+                    openai_input.append(user_replay)
+                    openai_input.append(assistant_reply)
+            
+            openai_input.append(question_item)
+            return openai_input
+
+        elif model.startswith(Defaults.davinci_prefix):
+            # 预设事实
+            preset_fact_string = self.preset_facts_string
+
+            # 上下文
+            context_string = self.talk_pool.get_QA_context()
+            
+            # 加上提问者身份
+            questioner_character_string = self.make_questioner_character(data_package)
+            questioner_messsage = '{}，{}'.format(questioner_character_string, message)
+            
+            openai_input = '{}\n{}\n{}'.format(preset_fact_string, context_string, questioner_messsage)
+            return openai_input
+        return None
+
     # bot 层面的 openai 请求输入处理
     def handle_openai_request(self, message: str, data_package: Union[PrivateMessage, GroupMessage]) -> Tuple[str, bool]:
         """
@@ -246,14 +304,9 @@ class ServerBot:
         if not message:
             return '请输入有效文本', True
         
-        # 发起请求
-        preset_fact_string = self.preset_facts_string
-        context_string = self.talk_pool.get_QA_context()
-        questioner_character_string = self.make_questioner_character(data_package)
-        questioner_messsage = '{}，{}'.format(questioner_character_string, message)
-        
-        openai_input = '{}\n{}\n{}'.format(preset_fact_string, context_string, questioner_messsage)
+        openai_input = self.make_question(message, data_package)
 
+        # 发起请求
         openai_reply, status = get_openai_completion(
             question=openai_input,
             openai_config=self.openai_config,

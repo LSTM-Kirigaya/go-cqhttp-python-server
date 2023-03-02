@@ -7,7 +7,7 @@ from colorama import Fore, Style
 import psutil
 import yaml
 
-from qq_server.type import CqType, CqAt, CqFace, QQMessageBase
+from qq_server.type import CqType, CqAt, CqFace, QQMessageBase, ChatgptInputType
 
 class ReportType(Enum):
     Warn = 'warn'
@@ -99,6 +99,9 @@ def get_send_group_request(go_host: str, go_port: int, group_id: int, message: s
             go_host, go_port, group_id, message)
     return get_request
 
+# chatgpt输入
+def make_chatgpt_input_item(type: ChatgptInputType, content: str) -> dict:
+    return {'role': type, 'content': content}
 
 # 获取当前服务器资源占用情况
 def get_server_condition():
